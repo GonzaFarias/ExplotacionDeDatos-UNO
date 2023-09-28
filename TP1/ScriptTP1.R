@@ -1,18 +1,14 @@
 
-###############################################
+########################################################
 # Tema: Visualización de la información.
 # Materia: Explotación de Datos
 # Fecha: 26/08/2023
 
-# Autores:
-# Farias Gonzalo	gonzafarias01@gmail.com
-# Romano Diego		romanodiegoe@gmail.com
-# Robledo Alan		robledoezequiel609@gmail.com
-# Gonzalo Ramirez gonzalo.e.ramirez@hotmail.com
+# Autor: Farias Gonzalo	
 
 # Fuente Ministerio de Cultura Argentina:
 # https://datos.cultura.gob.ar/dataset/sector-musical
-###############################################
+########################################################
 
 # Bibliotecas a importar
 check_packages <- function(packages) {
