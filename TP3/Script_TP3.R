@@ -1,13 +1,13 @@
-#########################################################################
-# Tema: Analisis de Componentes Principales y Clustering                #   
-# Materia: Explotación de Datos                                         #
-# Fecha: 26/09/2023                                                     #
-#                                                                       #
-# Autor: Farias Gonzalo	                                               #
-#                          									  #
-# Fuente: Kaggle - Argentina provincial data                            #
-# https://www.kaggle.com/datasets/kingabzpro/argentina-provincial-data  #
-#########################################################################
+#######################################################################
+# Tema: Analisis de Componentes Principales y Clustering                
+# Materia: Explotación de Datos                                         
+# Fecha: 26/09/2023                                                     
+#                                                                       
+# Autor: Farias Gonzalo	                                               
+#                          									  
+# Fuente: Kaggle - Argentina provincial data                            
+# https://www.kaggle.com/datasets/kingabzpro/argentina-provincial-data  
+#######################################################################
 
 # CARGA DE BIBLIOTECAS
 # Importamos las bibliotecas necesarias para el análisis.
