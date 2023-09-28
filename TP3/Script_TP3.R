@@ -3,8 +3,8 @@
 # Materia: Explotación de Datos                                         #
 # Fecha: 26/09/2023                                                     #
 #                                                                       #
-# Autor: Farias Gonzalo	                                                #
-#                          												#
+# Autor: Farias Gonzalo	                                               #
+#                          									  #
 # Fuente: Kaggle - Argentina provincial data                            #
 # https://www.kaggle.com/datasets/kingabzpro/argentina-provincial-data  #
 #########################################################################
