@@ -7,4 +7,4 @@ Practicas/Trabajos realizados durante la cursada.
 - **Regresión lineal múltiple:** Estimación de los coeficientes de regresión por mínimos cuadrados. Inadecuación de los diagramas de dispersión. Pruebas de Hipótesis. Predicción de nuevas observaciones. Multicolinealidad. Comprobación de la adecuación del Modelo. Diagnóstico para balanceo e influencia.
 - **Componentes Principales:** Análisis exploratorio. Análisis de componentes principales. Grafico Biplot, interpretación del gráfico, etc.
 - **Clustering/Agrupamiento:** Técnicas descriptivas y predictivas de clasificación. Agrupamientos jerárquicos. El dendograma en el análisis del agrupamiento jerárquico. Agrupamiento no jerárquico de Kmedias.
-- ...
+- **Árboles de decisión:** Árboles de decisión como técnica predictiva de clasificación. Características de los árboles de decisión. Árboles de decisión como técnica de segmentación. Método Chaid. Random Forest.
