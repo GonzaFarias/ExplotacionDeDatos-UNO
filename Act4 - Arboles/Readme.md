@@ -1,4 +1,4 @@
-# Deep Learning - Modelado de Arboles de Decisión
+# Supervised Learning - Modelado de Arboles de Decisión
 
 Este repositorio contiene el código y los datos utilizados para realizar un análisis de datos y modelado con arboles de decisión en dos contextos diferentes: detección de cáncer de mama (utilizando rpart) y evaluación de relaciones violentas en parejas (utilizando Random Forest).
 
