@@ -1,34 +1,33 @@
-################################################################################
+################################################################################################
 # Tema: Arboles de decisión con clasificación (Random Forest y Rpart)
-# Fecha: 19/10/2023
+# Fecha: 21/10/2023
 #
 # Autores:                                                              
 # Farias Gonzalo	- gonzafarias01@gmail.com                             
 # Romano Diego	 -	romanodiegoe@gmail.com                                
 # Robledo Alan	-	robledoezequiel609@gmail.com     
 #
-# Fuente para RPart: Kaggle - Breast Cancer Dataset 
+# Fuente para RPart: 
+# Kaggle - Breast Cancer Dataset 
 # https://www.kaggle.com/datasets/yasserh/breast-cancer-dataset
 #
-# Fuente para Random Forest: BA Data - Test de Alerta sobre un noviazgo violento
+# Fuente para Random Forest:
+# BA Data - Test de Alerta sobre un noviazgo violento
 # https://data.buenosaires.gob.ar/dataset/test-alerta-sobre-noviazgo-violento
-################################################################################
+#
+# Test - Señales de alerta en el noviazgo
+# https://ash.buenosaires.gob.ar/desarrollohumanoyhabitat/mujer/senales-de-alerta-en-el-noviazgo
+################################################################################################
 
 ##### Importamos las biliotecas #####
 library(plyr)  
 library(rpart.plot) 
 library(caret)
-library(gridExtra) 
 library(tidyverse) 
 library(rsample)
 library(e1071) 
-library(GGally)
-library(data.table)
-library(DT)
-library(readr)
 library(ggplot2)
 library(dplyr)
-library(tidyr)
 library(corrplot)
 library(MASS)
 library(e1071)
@@ -45,7 +44,7 @@ gc()
 
 options(scipen = 6) # para evitar notacion cientifica.
 
-# setwd(paste0(getwd(),"/Act4 - Arboles" ))
+# setwd(paste0(getwd(),"/" )) # Setamos el entorno
 
 #######################################################################################################  
 ################################################ RPART ################################################ 
@@ -99,6 +98,7 @@ colnames(datosDiagnostico)<- c(
 datosDiagnostico$diagnostico <- as.factor(mapvalues(datosDiagnostico$diagnostico,
                                                     from=c("M","B"),
                                                     to=c("Maligno", "Benigno")))
+table(datosDiagnostico$diagnostico)
 
 ##### Información #####
 # El cáncer de mama es el cáncer más común entre las mujeres en el mundo. 
@@ -116,9 +116,13 @@ parte <- createDataPartition(datosDiagnostico$diagnostico, p=0.75, list=FALSE)
 datosTrainDiagnostico<-datosDiagnostico[parte,]
 datosTestDiagnostico<-datosDiagnostico[-parte,]
 
-tr_fit <- rpart(diagnostico ~., data = datosTrainDiagnostico, method="class") # Indicamos que deseamos un arbol de clasificacion.
+tr_fit <- rpart(diagnostico ~., data = datosTrainDiagnostico, method="class") # Indicamos que deseamos un arbol de clasificación.
 tr_fit # Nuestro arbol obtenido.
-rpart.plot(tr_fit) # Graficamos el arbol.
+rpart.plot(tr_fit) # Graficamos el arbol. Cabe aclarar que si el nodo dice "Benigno" representa "Maligno" y viceversa, esto se debe al orden alfabetico de niveles
+# El nodo raiz indica que del 100% de la muestra el 37% es maligno.
+# Si el peor perimetro es < 106, tenemos 61%, de este porcentaje el 5% es maligno
+# Si es falso tenemos el 39%, de este porcentaje el 87% es benigno.
+# y así continua el árbol...
 
 # Calculo de predicciones del modelo en el conjunto de prueba
 tr_pred <- predict(tr_fit, datosTestDiagnostico, type = "class")
@@ -137,6 +141,21 @@ ggplot(datosDiagnostico, aes(x = diagnostico, fill = diagnostico)) +
   labs(title = "Distribución de diagnósticos",
        x = "Diagnóstico",
        y = "Cantidad") +  theme_gray() +   scale_fill_manual(values = c("Maligno" = "red", "Benigno" = "blue"))
+
+## Porcentaje de Diagnósticos
+resumen_diagnostico <- datosDiagnostico %>%
+  group_by(diagnostico) %>%
+  summarise(Count = n()) %>%
+  mutate(Percentage = (Count / sum(Count)) * 100)
+ggplot(resumen_diagnostico, aes(x = "", y = Percentage, fill = diagnostico)) +
+  geom_bar(stat = "identity", width = 1) +
+  coord_polar("y", start = 0) +
+  labs(title = "Porcentaje de Diagnósticos",
+       y = "Porcentaje",
+       x = "") +
+  theme_minimal() +
+  theme(legend.position = "right") +
+  scale_fill_manual(values = c("Maligno" = "red", "Benigno" = "blue"))
 # Vemos una gran cantidad de diagnosticos malignos, más de la mitad de los benignos
 
 #######################################################################################################  
@@ -300,16 +319,25 @@ sum(datosViolencia$genero == "Otro") # La muestra de personas con género otro e
 # Vemos que las mujeres son el género que mayor cantidad de reportes tienen de parejas
 # violentas, asimismo las que más completan la encuesta.
 
-################################### RANGER #############################################
 
+#######################################################################################################  
+############################################ RANGER ###################################################
+####################################################################################################### 
 library(ranger)
+# Como extra probamos como quedan nuestras pruebas con Ranger (contraccion de Random Forest Generator)
 
+# Ranger es una implementacion rapida de bosques aleatorios para R, 
+# se destaca por su velocidad y su capacidad para manejar conjuntos de datos grandes. 
+# Usamos los parametros por defecto.
+
+## Modelo Ranger aplicado al diagnostico de Detección de Cáncer de Mama.
 modeloRangerDiagnostico <- ranger(formula=diagnostico ~ ., data=datosTrainDiagnostico)
 modeloRangerDiagnostico
 prediccionRangerDiagnostico <- predict(modeloRangerDiagnostico, data=datosTestDiagnostico)
 confusionMatrix(prediccionRangerDiagnostico$predictions, datosTestDiagnostico$diagnostico)
 # Lo más notorio es el cambio del test Mcnemar's, el valor de Kappa y Accuracy son casi identicos. 
 
+## Modelo Ranger aplicado al Nivel de Violencia en Parejas.
 modeloRangerViolencia <- ranger(formula=nivel_violencia ~ ., data=datosTrainViolencia)
 modeloRangerViolencia
 prediccionRangerViolencia <- predict(modeloRangerViolencia, data=datosTestViolencia)
