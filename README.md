@@ -9,4 +9,4 @@ Practicas/Trabajos realizados durante la cursada.
 - **Clustering/Agrupamiento:** Técnicas descriptivas y predictivas de clasificación. Agrupamientos jerárquicos. El dendograma en el análisis del agrupamiento jerárquico. Agrupamiento no jerárquico de Kmedias.
 - **Árboles de Decisión - Supervised Learning:** Árboles de decisión como técnica predictiva de clasificación. Características de los árboles de decisión. Árboles de decisión como técnica de segmentación. Método Chaid. Random Forest.
 - **Ánalisis Discriminante:** Hipótesis en el modelo discriminante. Estimación del modelo. Clasificación mediante el modelo discriminante. Tabla de confusión.
-- **Series Temporales:** 
+- **Series Temporales:** Visualización de las series temporales (st). Análisis, descomposición y predicción de una st. Aplicaciones de series temporales.   
