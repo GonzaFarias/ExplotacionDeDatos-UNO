@@ -1,0 +1,152 @@
+#######################################################################
+# Tema: Regresión Lineal Multiple               
+# Materia: Explotación de Datos                                         
+# Fecha: 04/11/2023                                                  
+#                                                                       
+# Autor:                                                              
+# Farias Gonzalo	- gonzafarias01@gmail.com                             
+#
+# Fuente: World Happiness Report - Data                            
+# https://worldhappiness.report/data/
+#######################################################################
+
+library(dplyr) 
+library(xtable)      
+library(ggplot2)  
+library(corrplot)
+library(readxl)
+library(leaps) 
+library(car)
+library(lmtest)
+library(broom)
+library(fmsb)
+
+
+setwd("D:/Universidad/Explotacion de Datos/Act2 - RLM")
+
+#para limpieza de memoria:
+rm(list=ls())
+gc()
+
+# Cargar de datos
+datos <- read_excel("felicidad_mundial.xls")
+datos <- subset(datos, year == 2014)
+datos <- subset(datos, select = -c(1,2))
+
+# Eliminamos las columnas "País","año" y renombramos las columnas para mayor claridad
+colnames(datos)<-c("EscaleraDeVida", "LogPBI", "ApoyoSocial", "EsperanzaVidaSaludableNacer", "LibertadTomarDecisionesVida", "Generosidad", "PercepcionCorrupcion", "AfectoPositivo", "AfectoNegativo", "ConfianzaGobiernoNacional")
+View(datos)
+
+# BÚSQUEDA DE DATOS NULOS
+# Visualizamos un resumen de datos nulos en el conjunto de datos.
+# View(summarise_all(datos, funs(sum(is.na(.)))))
+datos <- na.omit(datos) # Eliminamos las filas con valores nulos en caso de haber
+
+# CASTEO DE DATOS
+# Convertimos todas las columnas a tipo numérico para asegurarnos de que sean interpretables.
+attach(datos)
+datos <- datos %>% mutate_all(as.numeric)
+
+################################################################################        
+####################### ANÁLISIS EXPLORATORIO DE DATOS ######################### 
+
+summary(datos)  # Estadísticas descriptivas
+
+## Vemos correlaciones y graficamos:
+datos_cor <- cor(datos)  # Calculamos y almacenamos las correlaciones
+corrplot(datos_cor, method = "number", tl.col = "black", tl.cex = 0.8)
+plot(datos)
+
+
+## Metodos automaticos para seleccion de variables, probar cual es mejor:
+##  "backward" / "forward" / "both"
+mod_full<-lm(EscaleraDeVida~.,data=datos)
+summary(mod_full)
+
+modStep_for <- step(mod_full, direction = "forward",trace=T) 
+modStep_back <- step(mod_full, direction = "backward",trace=T)
+modStep_both <- step(mod_full, direction = "both",trace=F)
+summary(modStep_for)
+summary(modStep_back)
+summary(modStep_both)
+
+# Elegir modelo
+modelo <- modStep_back
+
+ggplot(modelo, aes(x=LogPBI+ApoyoSocial+EsperanzaVidaSaludableNacer+LibertadTomarDecisionesVida+Generosidad+PercepcionCorrupcion+AfectoPositivo+AfectoNegativo+ConfianzaGobiernoNacional, y=EscaleraDeVida))+ 
+  geom_point() +
+  geom_smooth(method='lm',se=FALSE, col='green') +
+  theme_light()
+
+residuos = residuals(modelo)
+summary(residuos)
+hist(residuos) # Vemos si se da la campana de Gauss
+
+
+
+################################################################################        
+######################## VERIFICAR SUPUESTOS DE LA RLM ######################### 
+par(mfrow=c(2,2))
+plot(modelo) 
+
+# 1. Linealidad: Dispersion sin patron alguno de residuos, viendo plots del modelo y residuos
+plot(residuos)
+
+# 2. homocedasticidad: verificar la homocedasticidad graficando los residuos estandarizados
+# Grafico de Scale-Location
+# Crear un boxplot personalizado debe tener mediana 0 (de residuos)
+boxplot(residuos,
+        main = "Boxplot de Datos",
+        xlab = "Variable X",
+        ylab = "Variable Y",
+        col = "lightblue",
+        border = "blue",
+        horizontal = TRUE)
+
+# 3. Homogeneidad de la varianza: observar el gráfico de residuos vs. valores predichos. (Residuals vs Fitted)
+# Si los puntos se distribuyen aleatoriamente alrededor de la línea de referencia, se cumple la suposición de homogeneidad de varianza.
+
+
+# 4. Independencia de los residuos: usar test de Durbin Watson
+# Errores independientes (no correlacionados, es equivalente si hay normalidad)
+# Test Durbin Watson
+# DW debe ser cercano a 2 y el p-value cercano a 1 para demostrarlo
+# un pvalue muy pequenio indica que no hay independencia (están correlacionados)
+# La hipotesis nula es que no hay autocorrelacion.
+dwtest(modelo)  # Si el pvalor es chico, entonces hay dependencias entre residuos
+
+
+# 5. Normalidad de los residuos: usar un gráfico QQplot 
+# Test de normalidad de Shapiro-Wilk (muestras chicas)
+# Cuanto más cercano esté W a 1, más probable es que los datos se ajusten a una distribución normal. 
+# Si el p-valor es mayor que el nivel de significancia (ejemplo 0.05), se asume que los datos siguen una distribución normal.
+x.test <- shapiro.test(residuos)
+print(x.test)
+
+
+# 6. Multicolinealidad e influyentes:
+# MULTICOLINEALIDAD
+# VIF: Si es mayor a 10, entonces hay correlacion entre variables
+# VIF = 1: NO HAY MULTICOLINEALIDAD
+# VIF > 1: MULTICOLINEALIDAD ACEPTABLE
+# VIF > 5: MULTICOLINEALIDAD ALTA
+vif(modelo) 
+
+#INFLUYENTES:
+cooks=cooks.distance(modelo)
+plot(cooks.distance(modelo))
+
+# Resumen del modelo
+summary(modelo)
+# Si el valor de F es grande y el valor p es chico indica que el modelo de regresión es significativo 
+# y explica de manera efectiva la variabilidad en los datos.
+# Se busca un alto R cuadrado ajustado y significatividad en las variables.
+
+## PREDICCION de nuevos datos
+nuevo<-data.frame(x=c(130,152,305),
+                  x=c(51,49,200),
+                  x=c(2444,3100,4800),
+                  x=c(11,16,14))
+#valores a predecir
+predict(modelo,nuevo)
+
