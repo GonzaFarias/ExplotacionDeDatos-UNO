@@ -3,8 +3,10 @@
 # Materia: Explotación de Datos                                         
 # Fecha: 04/11/2023                                                  
 #                                                                       
-# Autor:                                                              
-# Farias Gonzalo	- gonzafarias01@gmail.com                             
+# Autores:                                                              
+# Farias Gonzalo	- gonzafarias01@gmail.com     
+# Robledo Alan	-	robledoezequiel609@gmail.com   
+# Romano Diego	 -	romanodiegoe@gmail.com                                
 #
 # Fuente: World Happiness Report - Data                            
 # https://worldhappiness.report/data/
@@ -21,20 +23,17 @@ library(lmtest)
 library(broom)
 library(fmsb)
 
-
-setwd("D:/Universidad/Explotacion de Datos/Act2 - RLM")
-
 #para limpieza de memoria:
 rm(list=ls())
 gc()
 
 # Cargar de datos
 datos <- read_excel("felicidad_mundial.xls")
-datos <- subset(datos, year == 2014)
+datos <- subset(datos, year == 2014) # Establecemos un solo año para hacer nuestra regresión.
 datos <- subset(datos, select = -c(1,2))
 
 # Eliminamos las columnas "País","año" y renombramos las columnas para mayor claridad
-colnames(datos)<-c("EscaleraDeVida", "LogPBI", "ApoyoSocial", "EsperanzaVidaSaludableNacer", "LibertadTomarDecisionesVida", "Generosidad", "PercepcionCorrupcion", "AfectoPositivo", "AfectoNegativo", "ConfianzaGobiernoNacional")
+colnames(datos)<-c("SatisfaccionVida", "LogPBI", "ApoyoSocial", "EsperanzaVidaSaludableNacer", "LibertadTomarDecisionesVida", "Generosidad", "PercepcionCorrupcion", "AfectoPositivo", "AfectoNegativo", "ConfianzaGobiernoNacional")
 View(datos)
 
 # BÚSQUEDA DE DATOS NULOS
@@ -57,23 +56,19 @@ datos_cor <- cor(datos)  # Calculamos y almacenamos las correlaciones
 corrplot(datos_cor, method = "number", tl.col = "black", tl.cex = 0.8)
 plot(datos)
 
-
-## Metodos automaticos para seleccion de variables, probar cual es mejor:
+## Metodos automaticos para seleccion de variables, probamos cual es mejor:
 ##  "backward" / "forward" / "both"
-mod_full<-lm(EscaleraDeVida~.,data=datos)
+mod_full<-lm(SatisfaccionVida~.,data=datos)
 summary(mod_full)
 
-modStep_for <- step(mod_full, direction = "forward",trace=T) 
-modStep_back <- step(mod_full, direction = "backward",trace=T)
-modStep_both <- step(mod_full, direction = "both",trace=F)
-summary(modStep_for)
-summary(modStep_back)
-summary(modStep_both)
+summary(step(mod_full, direction = "forward",trace=F) )
+summary(step(mod_full, direction = "backward",trace=F))
+summary(step(mod_full, direction = "both",trace=F))
 
-# Elegir modelo
-modelo <- modStep_back
+# Elegimos el modelo
+modelo <- step(mod_full, direction = "backward",trace=T) # Optamos por el modelo con backward que nos dió mejores resultados
 
-ggplot(modelo, aes(x=LogPBI+ApoyoSocial+EsperanzaVidaSaludableNacer+LibertadTomarDecisionesVida+Generosidad+PercepcionCorrupcion+AfectoPositivo+AfectoNegativo+ConfianzaGobiernoNacional, y=EscaleraDeVida))+ 
+ggplot(modelo, aes(x=LogPBI+ApoyoSocial+EsperanzaVidaSaludableNacer+LibertadTomarDecisionesVida+Generosidad+PercepcionCorrupcion+AfectoPositivo+AfectoNegativo+ConfianzaGobiernoNacional, y=SatisfaccionVida))+ 
   geom_point() +
   geom_smooth(method='lm',se=FALSE, col='green') +
   theme_light()
@@ -81,8 +76,6 @@ ggplot(modelo, aes(x=LogPBI+ApoyoSocial+EsperanzaVidaSaludableNacer+LibertadToma
 residuos = residuals(modelo)
 summary(residuos)
 hist(residuos) # Vemos si se da la campana de Gauss
-
-
 
 ################################################################################        
 ######################## VERIFICAR SUPUESTOS DE LA RLM ######################### 
@@ -106,7 +99,6 @@ boxplot(residuos,
 # 3. Homogeneidad de la varianza: observar el gráfico de residuos vs. valores predichos. (Residuals vs Fitted)
 # Si los puntos se distribuyen aleatoriamente alrededor de la línea de referencia, se cumple la suposición de homogeneidad de varianza.
 
-
 # 4. Independencia de los residuos: usar test de Durbin Watson
 # Errores independientes (no correlacionados, es equivalente si hay normalidad)
 # Test Durbin Watson
@@ -115,14 +107,12 @@ boxplot(residuos,
 # La hipotesis nula es que no hay autocorrelacion.
 dwtest(modelo)  # Si el pvalor es chico, entonces hay dependencias entre residuos
 
-
 # 5. Normalidad de los residuos: usar un gráfico QQplot 
 # Test de normalidad de Shapiro-Wilk (muestras chicas)
 # Cuanto más cercano esté W a 1, más probable es que los datos se ajusten a una distribución normal. 
 # Si el p-valor es mayor que el nivel de significancia (ejemplo 0.05), se asume que los datos siguen una distribución normal.
 x.test <- shapiro.test(residuos)
 print(x.test)
-
 
 # 6. Multicolinealidad e influyentes:
 # MULTICOLINEALIDAD
@@ -143,10 +133,18 @@ summary(modelo)
 # Se busca un alto R cuadrado ajustado y significatividad en las variables.
 
 ## PREDICCION de nuevos datos
-nuevo<-data.frame(x=c(130,152,305),
-                  x=c(51,49,200),
-                  x=c(2444,3100,4800),
-                  x=c(11,16,14))
+nuevo <- data.frame(
+  LogPBI = 7.65,
+  ApoyoSocial = 0.52,
+  EsperanzaVidaSaludableNacer = 53.2,
+  LibertadTomarDecisionesVida = 0.50,
+  Generosidad = 0.10,
+  PercepcionCorrupcion = 0.87,
+  AfectoPositivo = 0.49,
+  AfectoNegativo = 0.37,
+  ConfianzaGobiernoNacional = 0.40
+)
 #valores a predecir
 predict(modelo,nuevo)
-
+# Pusimos datos casi identicos a la primera fila de los originales y nos dió como resultado
+# un valor casi identico, el valor original es de 3.13 y la predicción de 3.29
