@@ -26,7 +26,6 @@ library(fmsb)
 #para limpieza de memoria:
 rm(list=ls())
 gc()
-
 # Cargar de datos
 datos <- read_excel("felicidad_mundial.xls")
 datos <- subset(datos, year == 2014) # Establecemos un solo año para hacer nuestra regresión.
@@ -68,7 +67,9 @@ summary(step(mod_full, direction = "both",trace=F))
 # Elegimos el modelo
 modelo <- step(mod_full, direction = "backward",trace=T) # Optamos por el modelo con backward que nos dió mejores resultados
 
-ggplot(modelo, aes(x=LogPBI+ApoyoSocial+EsperanzaVidaSaludableNacer+LibertadTomarDecisionesVida+Generosidad+PercepcionCorrupcion+AfectoPositivo+AfectoNegativo+ConfianzaGobiernoNacional, y=SatisfaccionVida))+ 
+ggplot(modelo, aes(x=LogPBI + ApoyoSocial + EsperanzaVidaSaludableNacer + 
+                     LibertadTomarDecisionesVida + PercepcionCorrupcion + AfectoPositivo + 
+                     ConfianzaGobiernoNacional, y=SatisfaccionVida))+ 
   geom_point() +
   geom_smooth(method='lm',se=FALSE, col='green') +
   theme_light()
@@ -79,8 +80,9 @@ hist(residuos) # Vemos si se da la campana de Gauss
 
 ################################################################################        
 ######################## VERIFICAR SUPUESTOS DE LA RLM ######################### 
-par(mfrow=c(2,2))
+par(mfrow=c(2,2)) # Para ver los 4 plots del modelo juntos
 plot(modelo) 
+par(mfrow=c(1,1)) # Reestablecemos a la vista normal
 
 # 1. Linealidad: Dispersion sin patron alguno de residuos, viendo plots del modelo y residuos
 plot(residuos)
@@ -89,7 +91,7 @@ plot(residuos)
 # Grafico de Scale-Location
 # Crear un boxplot personalizado debe tener mediana 0 (de residuos)
 boxplot(residuos,
-        main = "Boxplot de Datos",
+        main = "Boxplot de Residuos",
         xlab = "Variable X",
         ylab = "Variable Y",
         col = "lightblue",
@@ -147,4 +149,4 @@ nuevo <- data.frame(
 #valores a predecir
 predict(modelo,nuevo)
 # Pusimos datos casi identicos a la primera fila de los originales y nos dió como resultado
-# un valor casi identico, el valor original es de 3.13 y la predicción de 3.29
+# un valor similar, el valor original es de 3.13 y la predicción de 3.29

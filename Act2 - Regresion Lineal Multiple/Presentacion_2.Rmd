@@ -69,7 +69,7 @@ plot(datos)
 ```
 
 # Generación de Modelos
-Para la generación de los modelos, usamos un métodos automático para seleccionar las variables para la regresión. Intentamos hacerlo en 3 direcciones diferentes: fordward (hacia delante), backward (hacia atrás) y both (ambas)
+En la generación de los modelos, usamos métodos automáticos para seleccionar las variables para la regresión. Intentamos hacerlo en 3 direcciones diferentes: fordward (hacia delante), backward (hacia atrás) y both (ambas)
 
 Mostramos el sumario con los datos descriptivos de cada uno de ellos para comparar y tomar una decisión.
 
@@ -85,7 +85,7 @@ summary(step(mod_full, direction = "both",trace=F))
 ```
 
 # Elección de un Modelo
-El modelo elegido fue el generado en dirección "backward" (hacia atrás) porque si bien nos dió un coeficiente de determinación un poco menor: 0,7904 contra  0,7944 del modelo generado en dirección "fordward", lo elegimos porque el estadístico f nos mucho mejor: 63,03 contra 49,38.  El p valor es muy pequeño: 2.2e-16 en todos los casos.
+El modelo elegido fue el generado en dirección "backward" (hacia atrás) porque si bien nos dió un coeficiente de determinación un poco menor: 0,7904 contra  0,7944 del modelo generado en dirección "fordward", lo elegimos porque el estadístico f nos da mejor: 63,03 contra 49,38.  El p valor es muy pequeño: 2.2e-16 en todos los casos.
 
 Las variables "Generosidad" y "AfectoNegativo" quedan fuera. Por lo tanto, de las 9 variables predictoras originales nos quedamos solo con 7.
 
@@ -124,7 +124,7 @@ plot(residuos)
 # Grafico de Scale-Location
 # Crear un boxplot personalizado debe tener mediana 0 (de residuos)
 boxplot(residuos,
-        main = "Boxplot de Datos",
+        main = "Boxplot de Residuos",
         xlab = "Variable X",
         ylab = "Variable Y",
         col = "lightblue",
@@ -186,7 +186,15 @@ nuevo <- data.frame(
 #valores a predecir
 predict(modelo,nuevo)
 # Pusimos datos casi identicos a la primera fila de los originales y nos dió como resultado
-# un valor casi identico, el valor original es de 3.13 y la predicción de 3.29
+# un valor similar, el valor original es de 3.13 y la predicción de 3.29
 ```
+En conclusión, la regresión lineal múltiple realizada revela que la satisfacción de vida puede ser
+explicada en gran medida por factores como el Producto Interno Bruto per cápita, el apoyo social,
+la esperanza de vida saludable al nacer, la libertad para tomar decisiones de vida, la percepción de
+corrupción, el afecto positivo y la confianza en el gobierno nacional. El modelo resultante muestra un
+buen ajuste a los datos, con un R cuadrado ajustado de 0.7779, lo que indica una capacidad predictiva
+sólida. Este estudio respalda la utilidad de la regresión
+lineal múltiple como una herramienta efectiva para entender y predecir la satisfacción de vida en función
+de múltiples variables.
 
 
