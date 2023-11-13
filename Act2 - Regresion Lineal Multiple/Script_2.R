@@ -67,15 +67,9 @@ summary(step(mod_full, direction = "both",trace=F))
 # Elegimos el modelo
 modelo <- step(mod_full, direction = "backward",trace=T) # Optamos por el modelo con backward que nos dió mejores resultados
 
-ggplot(modelo, aes(x=LogPBI + ApoyoSocial + EsperanzaVidaSaludableNacer + 
-                     LibertadTomarDecisionesVida + PercepcionCorrupcion + AfectoPositivo + 
-                     ConfianzaGobiernoNacional, y=SatisfaccionVida))+ 
-  geom_point() +
-  geom_smooth(method='lm',se=FALSE, col='green') +
-  theme_light()
-
 residuos = residuals(modelo)
 summary(residuos)
+
 hist(residuos) # Vemos si se da la campana de Gauss
 
 ################################################################################        
